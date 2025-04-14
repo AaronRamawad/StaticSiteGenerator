@@ -13,6 +13,11 @@ class TestTextNode(unittest.TestCase):
         node2 = TextNode("Plain", TextType.TEXT)
         self.assertEqual(node, node2)
 
+    def test_node_dif(self):
+        node = TextNode("This is a link", TextType.LINK, "WWW.youtube.com")
+        node2 = TextNode("This is a text node", TextType.TEXT)
+        self.assertNotEqual(node, node2)
+
 
 if __name__ == "__main__":
     unittest.main()
