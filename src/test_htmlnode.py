@@ -25,7 +25,9 @@ class TestLeafNode(unittest.TestCase):
 
     def test_leaf_to_html_without_value(self):
         node = LeafNode("p", value=None)
-        self.assertRaises(ValueError, node.to_html)
+        with self.assertRaises(ValueError) as context:
+            node.to_html()
+        self.assertEqual(context.exception.args[0], "Missing Value")
 
     def test_leaf_to_html_without_tag(self):
         node = LeafNode(tag=None, value="Text")
@@ -56,6 +58,19 @@ class TestParentNode(unittest.TestCase):
         parent_node = ParentNode("div", [child_node])
         test_answer = "<div><span><b>grandchild</b></span></div>"
         self.assertEqual(parent_node.to_html(), test_answer)
+
+    def test_parent_to_html_without_tag(self):
+        node = ParentNode(tag=None, children=[])
+        with self.assertRaises(ValueError) as context:
+            node.to_html()
+        self.assertEqual(context.exception.args[0], "Missing Tag")
+
+    def test_parent_to_html_without_children(self):
+        node = ParentNode("a", children=None)
+        with self.assertRaises(ValueError) as context:
+            node.to_html()
+        self.assertEqual(context.exception.args[0], "Missing Children")
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -27,7 +27,7 @@ class LeafNode(HTMLNode):
 
     def to_html(self):
         if self.value == None:
-            raise ValueError
+            raise ValueError("Missing Value")
         if self.tag == None:
             return self.value
         
@@ -48,9 +48,9 @@ class ParentNode(HTMLNode):
 
     def to_html(self):
         if self.tag == None:
-            raise ValueError.add_note(self, "Missing Tag")
+            raise ValueError("Missing Tag")
         if self.children == None:
-            raise ValueError.add_note(self, "Missing Children")
+            raise ValueError("Missing Children")
         
         if self.props == None:
             opening_tag = f"<{self.tag}>"
