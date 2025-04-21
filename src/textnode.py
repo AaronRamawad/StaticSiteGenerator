@@ -44,6 +44,7 @@ def text_node_to_html_node(text_node):
             "src": text_node.url,
             "alt": text_node.text,
         })
+    
 
 
     
