@@ -1,6 +1,6 @@
 import unittest
 
-from textnode import TextNode, TextType, text_node_to_html_node
+from textnode import TextNode, TextType, text_node_to_html_node, split_nodes_delimiter
 
 class TestTextNode(unittest.TestCase):
     def test_eq(self):
@@ -57,6 +57,68 @@ class TestTextNodetoHTMLNode(unittest.TestCase):
         self.assertEqual(html_node.value, "")
         self.assertEqual(html_node.props["alt"], "dog")
         self.assertEqual(html_node.props["src"], "dog.png")
+
+class TestSplitNodesDelimiter(unittest.TestCase):
+    def test_text_with_code(self):
+        node = TextNode("This is text with a `code block` word", TextType.TEXT)
+        new_nodes = split_nodes_delimiter([node], "`", TextType.CODE)
+
+        answer = [
+            TextNode("This is text with a ", TextType.TEXT),
+            TextNode("code block", TextType.CODE),
+            TextNode(" word", TextType.TEXT),
+        ]
+        
+        self.assertEqual(new_nodes, answer)
+
+    def test_text_with_multiple_bold(self):
+        node = TextNode("This is a **text** with a **bold** word", TextType.TEXT)
+        new_nodes = split_nodes_delimiter([node], "**", TextType.BOLD)
+
+        answer = [
+            TextNode("This is a ", TextType.TEXT),
+            TextNode("text", TextType.BOLD),
+            TextNode(" with a ", TextType.TEXT),
+            TextNode("bold", TextType.BOLD),
+            TextNode(" word", TextType.TEXT),
+        ]
+
+        self.assertEqual(new_nodes, answer)
+
+    def test_text_with_bold_and_italic(self):
+        node = TextNode("This is **text** with a _bold_ word", TextType.TEXT)
+        new_nodes = split_nodes_delimiter([node], "**", TextType.BOLD)
+        new_nodes = split_nodes_delimiter(new_nodes, "_", TextType.ITALIC)
+
+        answer = [
+            TextNode("This is ", TextType.TEXT),
+            TextNode("text", TextType.BOLD),
+            TextNode(" with a ", TextType.TEXT),
+            TextNode("bold", TextType.ITALIC),
+            TextNode(" word", TextType.TEXT),
+        ]
+
+        self.assertEqual(new_nodes, answer)
+
+    def test_text_with_multiple_bold(self):
+        node = TextNode("This is a **very long** sentence", TextType.TEXT)
+        new_nodes = split_nodes_delimiter([node], "**", TextType.BOLD)
+
+        answer = [
+            TextNode("This is a ", TextType.TEXT),
+            TextNode("very long", TextType.BOLD),
+            TextNode(" sentence", TextType.TEXT),
+        ]
+
+        self.assertEqual(new_nodes, answer)
+
+    def test_empty(self):
+        node = TextNode("", TextType.TEXT)
+        new_nodes = split_nodes_delimiter([node], "_", TextType.ITALIC)
+
+        answer = []
+
+        self.assertEqual(new_nodes, answer)
 
 
 if __name__ == "__main__":

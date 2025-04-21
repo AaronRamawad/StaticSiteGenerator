@@ -45,6 +45,24 @@ def text_node_to_html_node(text_node):
             "alt": text_node.text,
         })
     
+# It could look like this "This is a **text block** where **text** stays"
+
+def split_nodes_delimiter(old_nodes, delimiter, text_type):
+    new_nodes = []
+
+    for old_node in old_nodes:
+        split_segments = old_node.text.split(delimiter)
+        if len(split_segments) % 2 == 0:
+            raise ValueError("Invalid Markdown, format is not closed")
+        for i in range(len(split_segments)):
+            if split_segments[i] == "":
+                continue
+            if i % 2 == 0:
+                new_nodes.append(TextNode(split_segments[i], old_node.text_type))
+            else:
+                new_nodes.append(TextNode(split_segments[i], text_type))
+                
+    return new_nodes
 
 
     
