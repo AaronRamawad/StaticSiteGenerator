@@ -38,7 +38,7 @@ def text_node_to_html_node(text_node):
     if type == TextType.CODE:
         return LeafNode("code", text_node.text)
     if type == TextType.LINK:
-        return LeafNode("a", text_node.value, {"href": text_node.url})
+        return LeafNode("a", text_node.text, {"href": text_node.url})
     if type == TextType.IMAGE:
         return LeafNode("img", "", {
             "src": text_node.url,
