@@ -71,7 +71,7 @@ class TestSplitNodesDelimiter(unittest.TestCase):
         
         self.assertEqual(new_nodes, answer)
 
-    def test_text_with_multiple_bold(self):
+    def test_text_with_multiple_bold_words_seperate(self):
         node = TextNode("This is a **text** with a **bold** word", TextType.TEXT)
         new_nodes = split_nodes_delimiter([node], "**", TextType.BOLD)
 
@@ -100,7 +100,7 @@ class TestSplitNodesDelimiter(unittest.TestCase):
 
         self.assertEqual(new_nodes, answer)
 
-    def test_text_with_multiple_bold(self):
+    def test_text_with_multiple_bold_words_together(self):
         node = TextNode("This is a **very long** sentence", TextType.TEXT)
         new_nodes = split_nodes_delimiter([node], "**", TextType.BOLD)
 
