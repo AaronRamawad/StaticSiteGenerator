@@ -91,11 +91,72 @@ def extract_markdown_links(text):
     link_markdowns = findall(r"\[.*?\]\(.*?\)", text)
 
     for markdown in link_markdowns:
-        alt, link = markdown.split("(")
+        link_text, link = markdown.split("(")
 
-        alt = alt.lstrip("[").rstrip("]")
+        link_text = link_text.lstrip("[").rstrip("]")
         link = link.rstrip(")")
 
-        links.append((alt, link))
+        links.append((link_text, link))
 
     return links
+
+def split_nodes_link(old_nodes):
+
+    new_nodes = []
+
+    for node in old_nodes:
+        links = extract_markdown_links(node.text)
+        if len(links) == 0:
+            new_nodes.append(node)
+        elif node.text_type == "text":
+            new_nodes.append(node)
+        else:
+            sections = node.text.split(f"[{links[0][0]}]({links[0][1]})")
+            if len(links) > 1:
+                for i in range(1, len(links)):
+                    new_sections = sections.pop(i).split(f"[{links[i][0]}]({links[i][1]})")
+                    for section in new_sections:
+                        sections.append(section)
+
+            for i in range(len(sections)):
+                if sections[i] == "" or sections[i] == " ":
+                    sections.pop(i)
+                else:
+                    new_nodes.append(TextNode(sections[i], TextType.TEXT))
+                try:
+                    new_nodes.append(TextNode(links[i][0], TextType.LINK, links[i][1]))
+                except IndexError:
+                    pass
+        
+    return new_nodes
+
+
+def split_nodes_image(old_nodes):
+    
+    new_nodes = []
+
+    for node in old_nodes:
+        images = extract_markdown_images(node.text)
+        if len(images) == 0:
+            new_nodes.append(node)
+        elif node.text_type == "image":
+            new_nodes.append(node)
+        else:
+            sections = node.text.split(f"![{images[0][0]}]({images[0][1]})")
+            if len(images) > 1:
+                for i in range(1, len(images)):
+                    new_sections = sections.pop(i).split(f"![{images[i][0]}]({images[i][1]})")
+                    for section in new_sections:
+                        sections.append(section)
+
+            for i in range(len(sections)):
+                if sections[i] == "" or sections[i] == " ":
+                            sections.pop(i)
+                else:
+                    new_nodes.append(TextNode(sections[i], TextType.TEXT))
+                try:
+                    new_nodes.append(TextNode(images[i][0], TextType.IMAGE, images[i][1]))
+                except IndexError:
+                    pass
+
+    return new_nodes
