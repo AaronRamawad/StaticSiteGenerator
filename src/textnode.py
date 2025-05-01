@@ -53,15 +53,18 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
 
     for old_node in old_nodes:
         split_segments = old_node.text.split(delimiter)
-        if len(split_segments) % 2 == 0:
+        if len(split_segments) == 1:
+            new_nodes.append(old_node)
+        elif len(split_segments) % 2 == 0:
             raise ValueError("Invalid Markdown, format is not closed")
-        for i in range(len(split_segments)):
-            if split_segments[i] == "":
-                continue
-            if i % 2 == 0:
-                new_nodes.append(TextNode(split_segments[i], old_node.text_type))
-            else:
-                new_nodes.append(TextNode(split_segments[i], text_type))
+        else:
+            for i in range(len(split_segments)):
+                if split_segments[i] == "":
+                    continue
+                if i % 2 == 0:
+                    new_nodes.append(TextNode(split_segments[i], old_node.text_type))
+                else:
+                    new_nodes.append(TextNode(split_segments[i], text_type))
                 
     return new_nodes
 
@@ -108,8 +111,6 @@ def split_nodes_link(old_nodes):
         links = extract_markdown_links(node.text)
         if len(links) == 0:
             new_nodes.append(node)
-        elif node.text_type == "text":
-            new_nodes.append(node)
         else:
             sections = node.text.split(f"[{links[0][0]}]({links[0][1]})")
             if len(links) > 1:
@@ -139,8 +140,6 @@ def split_nodes_image(old_nodes):
         images = extract_markdown_images(node.text)
         if len(images) == 0:
             new_nodes.append(node)
-        elif node.text_type == "image":
-            new_nodes.append(node)
         else:
             sections = node.text.split(f"![{images[0][0]}]({images[0][1]})")
             if len(images) > 1:
@@ -160,3 +159,15 @@ def split_nodes_image(old_nodes):
                     pass
 
     return new_nodes
+
+def text_to_textnodes(text):
+    node = TextNode(text, TextType.TEXT)
+    new_nodes = split_nodes_image([node])
+    new_nodes = split_nodes_link(new_nodes)
+    new_nodes = split_nodes_delimiter(new_nodes, "**", TextType.BOLD)
+    new_nodes = split_nodes_delimiter(new_nodes, "_", TextType.ITALIC)
+    new_nodes = split_nodes_delimiter(new_nodes, "`", TextType.CODE)
+    return new_nodes
+
+print(text_to_textnodes("This is **text** with an _italic_ word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)"))
+
