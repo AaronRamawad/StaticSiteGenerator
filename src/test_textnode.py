@@ -277,6 +277,35 @@ class TestTextToTextNodes(unittest.TestCase):
 
         self.assertListEqual(new_nodes, answer)
 
+    def test_text_to_text_nodes_only_text(self):
+        text = "This is only one piece of text"
+
+        new_nodes = text_to_textnodes(text)
+
+        answer = [
+            TextNode("This is only one piece of text", TextType.TEXT)
+        ]
+
+        self.assertListEqual(answer, new_nodes)
+
+    def test_text_to_text_nodes_no_words(self):
+        text = ""
+
+        new_nodes = text_to_textnodes(text)
+
+        answer = [
+            TextNode("", TextType.TEXT)
+        ]
+
+        self.assertListEqual(answer, new_nodes)
+
+    def test_text_to_text_nodes_incomplete_markdown(self):
+        text = "This is **piece** of _text with no images or links"
+
+        with self.assertRaises(ValueError) as context:
+            text_to_textnodes(text)
+        self.assertEqual(context.exception.args[0], "Invalid Markdown, format is not closed")
+
 
 if __name__ == "__main__":
     unittest.main()
