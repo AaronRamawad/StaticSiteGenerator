@@ -5,6 +5,7 @@ from textnode import text_node_to_html_node, split_nodes_delimiter
 from textnode import extract_markdown_images, extract_markdown_links
 from textnode import split_nodes_image, split_nodes_link
 from textnode import text_to_textnodes
+from textnode import markdown_to_blocks
 
 class TestTextNode(unittest.TestCase):
     def test_eq(self):
@@ -305,6 +306,47 @@ class TestTextToTextNodes(unittest.TestCase):
         with self.assertRaises(ValueError) as context:
             text_to_textnodes(text)
         self.assertEqual(context.exception.args[0], "Invalid Markdown, format is not closed")
+
+class TestMarkdownToBlocks(unittest.TestCase):
+    def test_markdown_to_block(self):
+        text = (
+            """
+            # This is a heading
+
+            This is a paragraph of text. It has some **bold** and _italic_ words inside of it.
+            """)
+
+        blocks = markdown_to_blocks(text)
+
+        answer = [
+            "# This is a heading",
+            "This is a paragraph of text. It has some **bold** and _italic_ words inside of it.",
+        ]
+
+        self.assertListEqual(answer, blocks)
+
+    def test_markdown_with_list_to_block(self):
+        text = (
+            """
+            # This is a heading
+
+            - This is the first item in a list block
+            - This is a list item
+            - This is another list item
+            """
+        )
+
+        blocks = markdown_to_blocks(text)
+
+        answer = [
+            "# This is a heading",
+            """- This is the first item in a list block
+            - This is a list item
+            - This is another list item"""
+        ]
+
+        self.assertListEqual(answer, blocks)
+
 
 
 if __name__ == "__main__":
